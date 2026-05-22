@@ -33,6 +33,7 @@ def extract():
             if not caption:
                 return jsonify({"found": False, "error": "לא נמצא תוכן בסרטון."})
 
+            print(f"ANTHROPIC_KEY set: {bool(ANTHROPIC_KEY)}, length: {len(ANTHROPIC_KEY)}")
             ai_res = requests.post(
                 "https://api.anthropic.com/v1/messages",
                 headers={
@@ -47,6 +48,7 @@ def extract():
                     "messages": [{"role": "user", "content": caption}]
                 }
             )
+            print(f"AI status: {ai_res.status_code}, body: {ai_res.text[:300]}")
             ai_data = ai_res.json()
             text = "".join(b.get("text","") for b in ai_data.get("content",[]))
             text = text.replace("```json","").replace("```","").strip()
