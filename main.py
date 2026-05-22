@@ -1,43 +1,28 @@
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import yt_dlp
 import os
 
-app = Flask(__name__)
-
-@app.after_request
-def add_cors(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
-    return response
+app = Flask(__name__, static_folder="static")
+CORS(app)
 
 @app.route("/")
 def home():
-    return "Instagram Recipe API is running!"
+    return send_from_directory("static", "index.html")
 
 @app.route("/extract")
 def extract():
     url = request.args.get("url", "")
     if not url:
         return jsonify({"error": "no url provided"}), 400
-
     try:
-        ydl_opts = {
-            "quiet": True,
-            "skip_download": True,
-        }
+        ydl_opts = {"quiet": True, "skip_download": True}
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             caption = info.get("description") or info.get("title") or ""
             thumbnail = info.get("thumbnail") or ""
-            return jsonify({
-                "caption": caption,
-                "thumbnail": thumbnail,
-                "title": info.get("title", ""),
-                "found": bool(caption)
-            })
+            return jsonify({"caption": caption, "thumbnail": thumbnail, "title": info.get("title", ""), "found": bool(caption)})
     except Exception as e:
         return jsonify({"error": str(e), "found": False}), 500
 
