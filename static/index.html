@@ -152,21 +152,8 @@ async function doExtract() {
     const res = await fetch(`/extract?url=${encodeURIComponent(url)}`);
     const data = await res.json();
     if (!data.found) throw new Error(data.error || "לא הצלחתי למשוך את תוכן הרילס.");
-    loadEl.textContent = "🤖 מחלץ מתכון...";
-    const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        system: `אתה עוזר לחלץ מתכונים מטקסט. החזר JSON בלבד (ללא markdown): {"name":"...","description":"...","servings":"...","time":"...","ingredients":["..."],"steps":["..."],"tags":["..."],"found":true} או {"found":false,"reason":"..."}. תרגם לעברית.`,
-        messages: [{role:"user", content: data.caption}]
-      })
-    });
-    const aiData = await aiRes.json();
-    const txt = (aiData.content||[]).map(b=>b.text||"").join("");
-    const parsed = JSON.parse(txt.replace(/```json|```/g,"").trim());
-    if (!parsed.found) throw new Error(parsed.reason || "לא נמצא מתכון.");
+    const parsed = data;
+    if (!parsed.found) throw new Error(parsed.error || parsed.reason || "לא נמצא מתכון.");
     const recipe = {...parsed, id: Date.now(), url, thumbnail: data.thumbnail||null, savedAt: new Date().toLocaleDateString("he-IL")};
     recipes.unshift(recipe);
     saveRecipes();
