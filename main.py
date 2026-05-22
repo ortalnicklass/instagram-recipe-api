@@ -42,7 +42,7 @@ def extract():
                     "anthropic-version": "2023-06-01"
                 },
                 json={
-                    "model": "claude-sonnet-4-20250514",
+                    "model": "claude-sonnet-4-5-20251022",
                     "max_tokens": 1000,
                     "system": SYSTEM_PROMPT,
                     "messages": [{"role": "user", "content": caption}]
@@ -61,7 +61,3 @@ def extract():
 
     except Exception as e:
         return jsonify({"error": str(e), "found": False}), 500
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
