@@ -1,10 +1,11 @@
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import yt_dlp
 import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins="*", allow_headers=["Content-Type"], methods=["GET", "OPTIONS"])
 
 @app.route("/")
 def home():
