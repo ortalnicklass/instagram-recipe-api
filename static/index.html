@@ -1,0 +1,307 @@
+
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מחלץ מתכונים מאינסטגרם</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, sans-serif; background: #f5f5f5; color: #222; }
+  .app { max-width: 600px; margin: 0 auto; padding: 1rem; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0 1.5rem; }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 500; }
+  .logo-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  nav { display: flex; gap: 8px; }
+  nav button { font-size: 13px; padding: 5px 12px; border-radius: 8px; border: 1px solid #ddd; background: transparent; cursor: pointer; }
+  nav button.active { background: #eee; }
+  .badge { background: #534AB7; color: #fff; border-radius: 10px; padding: 1px 6px; font-size: 11px; margin-right: 4px; }
+  .card { background: #fff; border-radius: 12px; border: 1px solid #eee; padding: 1.25rem; margin-bottom: 1rem; }
+  input, textarea { width: 100%; border-radius: 8px; border: 1px solid #ddd; padding: 10px 12px; font-size: 14px; font-family: inherit; background: #fff; }
+  textarea { resize: vertical; line-height: 1.6; }
+  .btn { width: 100%; margin-top: 0.75rem; padding: 12px; border-radius: 10px; border: none; background: #534AB7; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .btn:disabled { background: #ccc; cursor: not-allowed; }
+  .btn-green { background: #1D9E75; }
+  .btn-outline { background: #fff; color: #222; border: 1px solid #ddd; }
+  .error { color: #c0392b; font-size: 13px; margin-top: 0.5rem; }
+  .loading { color: #666; font-size: 13px; margin-top: 0.5rem; }
+  .recipe-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; border: 1px solid #eee; background: #fff; cursor: pointer; margin-bottom: 8px; }
+  .recipe-thumb { width: 44px; height: 44px; border-radius: 8px; background: #EAF3DE; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; overflow: hidden; }
+  .recipe-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .recipe-name { font-weight: 500; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .recipe-meta { font-size: 12px; color: #888; }
+  .tag { font-size: 11px; background: #EEEDFE; border-radius: 6px; padding: 2px 7px; color: #534AB7; display: inline-block; margin: 2px 2px; }
+  .stat { background: #f5f5f5; border-radius: 8px; padding: 8px 14px; text-align: center; }
+  .stat-label { font-size: 11px; color: #888; }
+  .stat-val { font-size: 15px; font-weight: 500; }
+  .ingredient { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; flex-shrink: 0; }
+  .step { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: #534AB7; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+  .ig-link { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; border: 1px solid #ddd; color: #E6683C; text-decoration: none; font-size: 14px; margin-bottom: 1rem; }
+  .progress-bar { height: 4px; background: #eee; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-fill { height: 100%; background: #1D9E75; transition: width 0.3s; }
+  .cook-step { background: #f5f5f5; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; min-height: 160px; display: flex; align-items: center; font-size: 20px; line-height: 1.7; }
+  .flex { display: flex; gap: 10px; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .wake-btn { padding: 14px; border-radius: 12px; border: 1px solid #ddd; font-size: 14px; cursor: pointer; flex-shrink: 0; }
+  .wake-btn.active { background: #EAF3DE; color: #3B6D11; }
+  .empty { text-align: center; padding: 2rem; color: #888; }
+  .empty-icon { font-size: 48px; margin-bottom: 1rem; }
+  .lib-actions { display: flex; border-top: 1px solid #eee; }
+  .lib-actions button { flex: 1; padding: 8px; font-size: 13px; border: none; background: none; cursor: pointer; color: #534AB7; }
+  .lib-actions .del { flex: 0; padding: 8px 14px; border-right: 1px solid #eee; color: #c0392b; }
+  .thumbnail { width: 100%; border-radius: 12px; object-fit: cover; max-height: 220px; margin-bottom: 1rem; }
+  .back-btn { font-size: 13px; color: #888; background: none; border: none; cursor: pointer; margin-bottom: 1rem; padding: 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">📷</div>
+      מחלץ מתכונים
+    </div>
+    <nav>
+      <button id="nav-home" class="active" onclick="showView('home')">בית</button>
+      <button id="nav-library" onclick="showView('library')">ספרייה <span class="badge" id="lib-count" style="display:none">0</span></button>
+    </nav>
+  </header>
+  <div id="view-home"></div>
+  <div id="view-library" style="display:none"></div>
+  <div id="view-recipe" style="display:none"></div>
+  <div id="view-cook" style="display:none"></div>
+</div>
+
+<script>
+const STORAGE_KEY = "instagram_recipes_v1";
+let recipes = [];
+let current = null;
+let cookStep = 0;
+let wakeLock = null;
+let wakeActive = false;
+const wakeSupported = "wakeLock" in navigator;
+
+function loadRecipes() {
+  try { recipes = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { recipes = []; }
+  updateLibBadge();
+}
+
+function saveRecipes() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes)); } catch {}
+  updateLibBadge();
+}
+
+function updateLibBadge() {
+  const badge = document.getElementById("lib-count");
+  if (recipes.length > 0) { badge.style.display = "inline"; badge.textContent = recipes.length; }
+  else badge.style.display = "none";
+}
+
+function showView(v) {
+  ["home","library","recipe","cook"].forEach(n => {
+    document.getElementById("view-"+n).style.display = n === v ? "block" : "none";
+    const btn = document.getElementById("nav-"+n);
+    if (btn) btn.className = n === v ? "active" : "";
+  });
+  if (v === "home") renderHome();
+  if (v === "library") renderLibrary();
+}
+
+function renderHome() {
+  const el = document.getElementById("view-home");
+  el.innerHTML = `
+    <div class="card">
+      <p style="font-size:14px;font-weight:500;margin-bottom:4px">הדבק לינק רילס מאינסטגרם</p>
+      <p style="font-size:12px;color:#888;margin-bottom:12px">השרת ימשוך את התוכן אוטומטית 🚀</p>
+      <input id="ig-url" type="url" placeholder="https://www.instagram.com/reel/..." />
+      <div id="extract-error" class="error" style="display:none"></div>
+      <div id="extract-loading" class="loading" style="display:none"></div>
+      <button class="btn" onclick="doExtract()">✨ חלץ מתכון אוטומטית</button>
+    </div>
+    ${recipes.length > 0 ? `
+      <p style="font-size:13px;color:#888;margin-bottom:8px">מתכונים אחרונים:</p>
+      ${recipes.slice(0,3).map(r => recipeItemHTML(r)).join("")}
+      ${recipes.length > 3 ? `<button onclick="showView('library')" style="font-size:13px;color:#534AB7;background:none;border:none;cursor:pointer;padding:4px 0">ראה את כל ${recipes.length} המתכונים ←</button>` : ""}
+    ` : `<div class="empty"><div class="empty-icon">🍳</div><p style="font-size:14px">הדבק לינק רילס למעלה וקבל מתכון מסודר!</p></div>`}
+  `;
+}
+
+function recipeItemHTML(r) {
+  const thumb = r.thumbnail
+    ? `<div class="recipe-thumb"><img src="${r.thumbnail}" onerror="this.parentElement.innerHTML='🍽️'"></div>`
+    : `<div class="recipe-thumb">🍽️</div>`;
+  return `<div class="recipe-item" onclick="openRecipe(${r.id})">
+    ${thumb}
+    <div style="flex:1;min-width:0">
+      <div class="recipe-name">${r.name}</div>
+      <div class="recipe-meta">${r.time||""} · ${r.servings||""}</div>
+    </div>
+    <span style="font-size:12px;color:#aaa;flex-shrink:0">${r.savedAt||""}</span>
+  </div>`;
+}
+
+async function doExtract() {
+  const url = document.getElementById("ig-url").value.trim();
+  if (!url) return;
+  const errEl = document.getElementById("extract-error");
+  const loadEl = document.getElementById("extract-loading");
+  errEl.style.display = "none";
+  loadEl.style.display = "block"; loadEl.textContent = "📡 מושך תוכן מהרילס...";
+  try {
+    const res = await fetch(`/extract?url=${encodeURIComponent(url)}`);
+    const data = await res.json();
+    if (!data.found) throw new Error(data.error || "לא הצלחתי למשוך את תוכן הרילס.");
+    loadEl.textContent = "🤖 מחלץ מתכון...";
+    const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        system: `אתה עוזר לחלץ מתכונים מטקסט. החזר JSON בלבד (ללא markdown): {"name":"...","description":"...","servings":"...","time":"...","ingredients":["..."],"steps":["..."],"tags":["..."],"found":true} או {"found":false,"reason":"..."}. תרגם לעברית.`,
+        messages: [{role:"user", content: data.caption}]
+      })
+    });
+    const aiData = await aiRes.json();
+    const txt = (aiData.content||[]).map(b=>b.text||"").join("");
+    const parsed = JSON.parse(txt.replace(/```json|```/g,"").trim());
+    if (!parsed.found) throw new Error(parsed.reason || "לא נמצא מתכון.");
+    const recipe = {...parsed, id: Date.now(), url, thumbnail: data.thumbnail||null, savedAt: new Date().toLocaleDateString("he-IL")};
+    recipes.unshift(recipe);
+    saveRecipes();
+    openRecipe(recipe.id);
+  } catch(e) {
+    errEl.style.display = "block"; errEl.textContent = e.message || "שגיאה. נסה שוב.";
+  }
+  loadEl.style.display = "none";
+}
+
+function openRecipe(id) {
+  current = recipes.find(r => r.id === id);
+  if (!current) return;
+  const el = document.getElementById("view-recipe");
+  el.innerHTML = `
+    <button class="back-btn" onclick="showView('library')">← חזרה לספרייה</button>
+    ${current.thumbnail ? `<img class="thumbnail" src="${current.thumbnail}" onerror="this.style.display='none'">` : ""}
+    <div class="flex-between" style="margin-bottom:1rem;align-items:flex-start">
+      <div style="flex:1">
+        <h1 style="font-size:22px;font-weight:500;margin-bottom:6px">${current.name}</h1>
+        <p style="font-size:14px;color:#888">${current.description||""}</p>
+      </div>
+      <button onclick="deleteRecipe(${current.id})" style="margin-right:8px;padding:6px 10px;border-radius:8px;border:1px solid #eee;background:none;cursor:pointer;font-size:13px;color:#c0392b;flex-shrink:0">מחק</button>
+    </div>
+    <div class="flex" style="margin-bottom:1.25rem;flex-wrap:wrap">
+      ${current.time ? `<div class="stat"><div class="stat-label">זמן הכנה</div><div class="stat-val">${current.time}</div></div>` : ""}
+      ${current.servings ? `<div class="stat"><div class="stat-label">מנות</div><div class="stat-val">${current.servings}</div></div>` : ""}
+      ${(current.tags||[]).map(t=>`<span class="tag">#${t}</span>`).join("")}
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:500;margin-bottom:12px">מצרכים</h3>
+      ${(current.ingredients||[]).map(i=>`<div class="ingredient"><span class="dot"></span><span style="font-size:14px">${i}</span></div>`).join("")}
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:500;margin-bottom:12px">אופן הכנה</h3>
+      ${(current.steps||[]).map((s,i)=>`<div class="step"><span class="step-num">${i+1}</span><span style="font-size:14px;line-height:1.6">${s}</span></div>`).join("")}
+    </div>
+    ${current.url ? `<a href="${current.url}" target="_blank" class="ig-link"><span style="font-size:18px">📷</span> צפה בסרטון המקורי</a>` : ""}
+    <div class="flex">
+      <button class="btn btn-green" onclick="startCook()" style="flex:1">👨‍🍳 בואו נבשל!</button>
+      ${wakeSupported ? `<button id="wake-btn" class="wake-btn ${wakeActive?'active':''}" onclick="toggleWake()">${wakeActive?"🔆 מסך פעיל":"🔅 שמור מסך"}</button>` : ""}
+    </div>
+    ${wakeActive ? `<p style="font-size:12px;color:#3B6D11;text-align:center;margin-top:6px">המסך יישאר פתוח תוך כדי בישול ✓</p>` : ""}
+  `;
+  showView("recipe");
+}
+
+function deleteRecipe(id) {
+  recipes = recipes.filter(r => r.id !== id);
+  saveRecipes();
+  showView("library");
+}
+
+function renderLibrary() {
+  const el = document.getElementById("view-library");
+  const search = (el.querySelector("#lib-search")?.value || "").trim();
+  const filtered = recipes.filter(r =>
+    !search || r.name?.includes(search) || r.tags?.some(t=>t.includes(search)) || r.ingredients?.some(i=>i.includes(search))
+  );
+  el.innerHTML = `
+    <input id="lib-search" placeholder="🔍 חיפוש לפי שם, מצרך או תגית..." oninput="renderLibrary()" value="${search}" style="margin-bottom:1rem">
+    ${filtered.length === 0 ? `<p style="text-align:center;color:#888;font-size:14px;padding-top:2rem">לא נמצאו מתכונים</p>` :
+      filtered.map(r => `
+        <div style="border-radius:12px;border:1px solid #eee;background:#fff;overflow:hidden;margin-bottom:10px">
+          <div class="recipe-item" onclick="openRecipe(${r.id})" style="border:none;border-radius:0">
+            ${r.thumbnail ? `<div class="recipe-thumb"><img src="${r.thumbnail}" onerror="this.parentElement.innerHTML='🍽️'"></div>` : `<div class="recipe-thumb">🍽️</div>`}
+            <div style="flex:1;min-width:0">
+              <div class="recipe-name">${r.name}</div>
+              <p style="font-size:12px;color:#888;margin:2px 0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.description||""}</p>
+              <div>${r.time?`<span class="tag" style="background:#f5f5f5;color:#666">⏱ ${r.time}</span>`:""} ${r.servings?`<span class="tag" style="background:#f5f5f5;color:#666">🍴 ${r.servings}</span>`:""} ${(r.tags||[]).slice(0,2).map(t=>`<span class="tag">#${t}</span>`).join("")}</div>
+            </div>
+          </div>
+          <div class="lib-actions">
+            <button onclick="openRecipe(${r.id})">צפה במתכון</button>
+            <button class="del" onclick="deleteRecipe(${r.id})">מחק</button>
+          </div>
+        </div>
+      `).join("")
+    }
+  `;
+}
+
+function startCook() {
+  cookStep = 0;
+  renderCook();
+  showView("cook");
+}
+
+function renderCook() {
+  const steps = current.steps || [];
+  const step = steps[cookStep];
+  document.getElementById("view-cook").innerHTML = `
+    <div class="flex-between" style="margin-bottom:1.5rem">
+      <span style="font-size:14px;color:#888">שלב ${cookStep+1} / ${steps.length}</span>
+      <div class="flex">
+        ${wakeSupported ? `<button id="wake-btn" class="wake-btn ${wakeActive?'active':''}" onclick="toggleWake()">${wakeActive?"🔆 מסך פעיל":"🔅 שמור מסך"}</button>` : ""}
+        <button class="wake-btn" onclick="showView('recipe')">יציאה</button>
+      </div>
+    </div>
+    <h2 style="font-size:20px;font-weight:500;margin-bottom:8px">${current.name}</h2>
+    <div class="progress-bar"><div class="progress-fill" style="width:${((cookStep+1)/steps.length)*100}%"></div></div>
+    <div class="cook-step">${step}</div>
+    <div class="flex">
+      <button class="btn btn-outline" onclick="prevStep()" ${cookStep===0?"disabled":""} style="flex:1">← הקודם</button>
+      ${cookStep < steps.length-1
+        ? `<button class="btn btn-green" onclick="nextStep()" style="flex:2">הבא ←</button>`
+        : `<button class="btn" onclick="showView('recipe')" style="flex:2;background:#534AB7">🎉 סיימנו!</button>`}
+    </div>
+    <div style="margin-top:2rem;border-top:1px solid #eee;padding-top:1rem">
+      <p style="font-size:13px;color:#888;margin-bottom:8px">מצרכים:</p>
+      ${(current.ingredients||[]).map(i=>`<span class="tag" style="background:#f5f5f5;color:#666;margin:2px 3px">${i}</span>`).join("")}
+    </div>
+  `;
+}
+
+function nextStep() { cookStep++; renderCook(); }
+function prevStep() { if (cookStep > 0) { cookStep--; renderCook(); } }
+
+async function toggleWake() {
+  if (wakeActive) {
+    try { await wakeLock?.release(); } catch {}
+    wakeLock = null; wakeActive = false;
+  } else {
+    try {
+      wakeLock = await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release", () => { wakeActive = false; });
+      wakeActive = true;
+    } catch { alert("לא ניתן להפעיל השארת מסך במכשיר זה."); }
+  }
+  const btn = document.getElementById("wake-btn");
+  if (btn) { btn.className = `wake-btn ${wakeActive?"active":""}`; btn.textContent = wakeActive?"🔆 מסך פעיל":"🔅 שמור מסך"; }
+}
+
+loadRecipes();
+showView("home");
+</script>
+</body>
+</html>
