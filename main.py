@@ -3,9 +3,17 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import yt_dlp
 import os
+import requests
 
 app = Flask(__name__, static_folder="static")
 CORS(app)
+
+ANTHROPIC_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+
+SYSTEM_PROMPT = """אתה עוזר לחלץ מתכונים מטקסט. החזר JSON בלבד (ללא markdown, ללא backticks):
+{"name":"...","description":"...","servings":"...","time":"...","ingredients":["..."],"steps":["..."],"tags":["..."],"found":true}
+או אם אין מתכון: {"found":false,"reason":"..."}
+תרגם הכל לעברית."""
 
 @app.route("/")
 def home():
@@ -22,7 +30,33 @@ def extract():
             info = ydl.extract_info(url, download=False)
             caption = info.get("description") or info.get("title") or ""
             thumbnail = info.get("thumbnail") or ""
-            return jsonify({"caption": caption, "thumbnail": thumbnail, "title": info.get("title", ""), "found": bool(caption)})
+            if not caption:
+                return jsonify({"found": False, "error": "לא נמצא תוכן בסרטון."})
+
+            ai_res = requests.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "Content-Type": "application/json",
+                    "x-api-key": ANTHROPIC_KEY,
+                    "anthropic-version": "2023-06-01"
+                },
+                json={
+                    "model": "claude-sonnet-4-20250514",
+                    "max_tokens": 1000,
+                    "system": SYSTEM_PROMPT,
+                    "messages": [{"role": "user", "content": caption}]
+                }
+            )
+            ai_data = ai_res.json()
+            text = "".join(b.get("text","") for b in ai_data.get("content",[]))
+            text = text.replace("```json","").replace("```","").strip()
+
+            import json
+            parsed = json.loads(text)
+            parsed["thumbnail"] = thumbnail
+            parsed["url"] = url
+            return jsonify(parsed)
+
     except Exception as e:
         return jsonify({"error": str(e), "found": False}), 500
 
