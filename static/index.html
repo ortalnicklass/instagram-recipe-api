@@ -87,13 +87,22 @@ let wakeActive = false;
 const wakeSupported = "wakeLock" in navigator;
 
 function loadRecipes() {
-  try { recipes = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { recipes = []; }
-  updateLibBadge();
+  fetch("/recipes")
+    .then(r => r.json())
+    .then(data => { recipes = data; updateLibBadge(); renderHome(); })
+    .catch(() => { recipes = []; });
 }
 
-function saveRecipes() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes)); } catch {}
-  updateLibBadge();
+function saveRecipe(recipe) {
+  return fetch("/recipes", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(recipe)
+  });
+}
+
+function deleteRecipeFromServer(id) {
+  return fetch(`/recipes/${id}`, { method: "DELETE" });
 }
 
 function updateLibBadge() {
@@ -128,6 +137,7 @@ function renderHome() {
       ${recipes.slice(0,3).map(r => recipeItemHTML(r)).join("")}
       ${recipes.length > 3 ? `<button onclick="showView('library')" style="font-size:13px;color:#534AB7;background:none;border:none;cursor:pointer;padding:4px 0">ראה את כל ${recipes.length} המתכונים ←</button>` : ""}
     ` : `<div class="empty"><div class="empty-icon">🍳</div><p style="font-size:14px">הדבק לינק רילס למעלה וקבל מתכון מסודר!</p></div>`}
+    <p style="font-size:11px;color:#bbb;text-align:center;margin-top:2rem;line-height:1.6;padding: 0 1rem">האתר מיועד לשימוש אישי בלבד. המתכונים נשלפים אוטומטית מתוכן חיצוני ואין אחריות על דיוקם, שלמותם או זכויות היוצרים שלהם. השימוש באתר הוא על אחריות המשתמש בלבד.</p>
   `;
 }
 
@@ -159,8 +169,8 @@ async function doExtract() {
     const parsed = data;
     if (!parsed.found) throw new Error(parsed.error || parsed.reason || "לא נמצא מתכון.");
     const recipe = {...parsed, id: Date.now(), url, thumbnail: data.thumbnail||null, savedAt: new Date().toLocaleDateString("he-IL")};
+    await saveRecipe(recipe);
     recipes.unshift(recipe);
-    saveRecipes();
     openRecipe(recipe.id);
   } catch(e) {
     errEl.style.display = "block"; errEl.textContent = e.message || "שגיאה. נסה שוב.";
@@ -289,6 +299,14 @@ async function toggleWake() {
   }
   const btn = document.getElementById("wake-btn");
   if (btn) { btn.className = `wake-btn ${wakeActive?"active":""}`; btn.textContent = wakeActive?"🔆 מסך פעיל":"🔅 שמור מסך"; }
+}
+
+function searchByTag(tag) {
+  showView('library');
+  setTimeout(() => {
+    const input = document.getElementById("lib-search");
+    if (input) { input.value = tag; renderLibrary(); }
+  }, 50);
 }
 
 loadRecipes();
