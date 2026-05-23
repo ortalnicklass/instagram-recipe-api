@@ -4,3 +4,4 @@ flask-cors
 yt-dlp
 gunicorn
 requests
+beautifulsoup4
