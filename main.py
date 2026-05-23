@@ -4,12 +4,14 @@ from flask_cors import CORS
 import yt_dlp
 import os
 import requests
+import json
 from bs4 import BeautifulSoup
 
 app = Flask(__name__, static_folder="static")
 CORS(app)
 
 ANTHROPIC_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+RECIPES_FILE = "recipes.json"
 
 SYSTEM_PROMPT = """אתה עוזר לחלץ מתכונים מטקסט. החזר JSON בלבד (ללא markdown, ללא backticks):
 {"name":"...","description":"...","servings":"...","time":"...","ingredients":["..."],"steps":["..."],"tags":["..."],"found":true}
@@ -36,9 +38,44 @@ def fetch_web(url):
         thumbnail = og_img.get("content", "")
     return "\n".join(lines[:200]), thumbnail
 
+def load_recipes():
+    try:
+        if os.path.exists(RECIPES_FILE):
+            with open(RECIPES_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except:
+        pass
+    return []
+
+def save_recipes(recipes):
+    try:
+        with open(RECIPES_FILE, "w", encoding="utf-8") as f:
+            json.dump(recipes, f, ensure_ascii=False, indent=2)
+    except:
+        pass
+
 @app.route("/")
 def home():
     return send_from_directory("static", "index.html")
+
+@app.route("/recipes", methods=["GET"])
+def get_recipes():
+    return jsonify(load_recipes())
+
+@app.route("/recipes", methods=["POST"])
+def add_recipe():
+    recipe = request.json
+    recipes = load_recipes()
+    recipes.insert(0, recipe)
+    save_recipes(recipes)
+    return jsonify({"ok": True})
+
+@app.route("/recipes/<int:recipe_id>", methods=["DELETE"])
+def delete_recipe(recipe_id):
+    recipes = load_recipes()
+    recipes = [r for r in recipes if r.get("id") != recipe_id]
+    save_recipes(recipes)
+    return jsonify({"ok": True})
 
 @app.route("/extract")
 def extract():
@@ -79,7 +116,6 @@ def extract():
         text = "".join(b.get("text", "") for b in ai_data.get("content", []))
         text = text.replace("```json", "").replace("```", "").strip()
 
-        import json
         parsed = json.loads(text)
         parsed["thumbnail"] = thumbnail
         parsed["url"] = url
